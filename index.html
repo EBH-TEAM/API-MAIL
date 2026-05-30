@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EBV TEAM | OTP সেন্টার</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f3f6fc 0%, #eef2f9 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        /* মূল কার্ড - সাদা + লাল অ্যাকসেন্ট */
+        .ebv-card {
+            max-width: 560px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            border: 1px solid #ffdede;
+        }
+
+        /* হেডার - নাম অনুযায়ী লোগো (EBV TEAM) */
+        .team-header {
+            background: #ffffff;
+            padding: 1.2rem 1.8rem;
+            border-bottom: 3px solid #e33b3b;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .team-name {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .team-name h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c62828, #e63946);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .team-badge {
+            background: #fee2e2;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #b91c1c;
+        }
+        .live-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #2c3e50;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #e63946;
+            border-radius: 50%;
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        /* কন্টেন্ট প্যাডিং কম — স্কিনের জায়গা কম */
+        .content-slim {
+            padding: 1.5rem 1.8rem 2rem;
+        }
+
+        /* একটাই বক্স (ইউনিভার্সাল কন্টেইনার) */
+        .unified-box {
+            background: #fefaf5;
+            border-radius: 1.8rem;
+            border: 1px solid #ffcdcd;
+            box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* ইমেইল সেকশন (বক্সের উপরের অংশ) */
+        .email-area {
+            padding: 1.2rem 1.5rem 0.8rem 1.5rem;
+            border-bottom: 1px dashed #ffe0e0;
+        }
+        .label-light {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #e33b3b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .email-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #fff7f0;
+            padding: 0.5rem 1rem;
+            border-radius: 60px;
+            border: 1px solid #ffe0e0;
+        }
+        .email-addr {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2d3e50;
+            word-break: break-all;
+        }
+        .btn-icon {
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-weight: 500;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-copy-mail {
+            background: #f1f5f9;
+            color: #b91c1c;
+            border: 1px solid #ffcdcd;
+        }
+        .btn-copy-mail:hover {
+            background: #ffe5e5;
+            transform: scale(0.96);
+        }
+        .btn-change {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(230,57,70,0.2);
+        }
+        .btn-change:hover {
+            background: #c62828;
+            transform: translateY(-1px);
+        }
+
+        /* OTP সেন্টার — বড় সাইজ, শুধু কোড */
+        .otp-center {
+            padding: 1.2rem 1.5rem 1.8rem 1.5rem;
+            text-align: center;
+        }
+        .otp-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #e33b3b;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        /* বিশাল OTP ডিসপ্লে - শুধু সংখ্যা, কোনো দাগ বা ওকে থাকবে না */
+        .otp-giant {
+            background: #fffaf5;
+            border-radius: 2rem;
+            padding: 1rem 0.5rem;
+            margin-bottom: 1.2rem;
+            border: 2px solid #ffe0e0;
+            box-shadow: inset 0 0 0 1px #fff, 0 8px 18px -8px rgba(0,0,0,0.05);
+        }
+        .otp-digits {
+            font-size: 3.2rem;
+            font-weight: 800;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            letter-spacing: 8px;
+            color: #2c3e50;
+            background: transparent;
+            text-align: center;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        /* কপি বাটন একদম সেন্টারে */
+        .copy-otp-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+        .btn-otp-copy {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(230,57,70,0.25);
+        }
+        .btn-otp-copy:hover {
+            background: #b91c1c;
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(185,28,28,0.3);
+        }
+        .refresh-note {
+            font-size: 0.65rem;
+            text-align: center;
+            margin-top: 1rem;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #facc15;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            backdrop-filter: blur(12px);
+            background: #0f172aee;
+            border: 1px solid #e63946;
+        }
+        button:active { transform: scale(0.96); }
+        @media (max-width: 480px) {
+            .content-slim { padding: 1rem; }
+            .otp-digits { font-size: 2rem; letter-spacing: 4px; }
+            .team-header { padding: 0.9rem 1.2rem; }
+            .team-name h1 { font-size: 1.4rem; }
+            .email-row { flex-direction: column; align-items: stretch; border-radius: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ebv-card">
+    <div class="team-header">
+        <div class="team-name">
+            <h1>EBH TEAM</h1>
+            <span class="team-badge">✦ EARNING BY HABIB  ✦</span>
+        </div>
+        <div class="live-dot">
+            <span class="dot"></span>
+            <span>অটো OTP </span>
+        </div>
+    </div>
+
+    <div class="content-slim">
+        <!-- একটাই ইউনিফাইড বক্স -->
+        <div class="unified-box">
+            <!-- ইমেইল বিভাগ -->
+            <div class="email-area">
+                <div class="label-light">
+                    📧 API MAIL
+                </div>
+                <div class="email-row">
+                    <span class="email-addr" id="currentEmail">লোড হচ্ছে...</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon btn-change" id="changeEmailBtn">↻ চেঞ্জ</button>
+                        <button class="btn-icon btn-copy-mail" id="copyEmailBtn">📋 কপি</button>
+                    </div>
+                </div>
+                <div class="refresh-note" style="justify-content: flex-start; margin-top: 6px; font-size:0.6rem;">
+                    💡 শুধু 'চেঞ্জ' বাটনে ক্লিক করলেই মেইল রিফ্রেশ হবে
+                </div>
+            </div>
+
+            <!-- OTP সেন্টার - বিশাল & শুধু সংখ্যা, কোনো ওকে/দাগ থাকবে না -->
+            <div class="otp-center">
+                <div class="otp-label">
+                    🔐 ওয়ান টাইম পাসকোড
+                    <span style="background:#fee2e2; padding:2px 8px; border-radius:20px; font-size:0.6rem;">pure OTP</span>
+                </div>
+                <div class="otp-giant">
+                    <div class="otp-digits" id="otpValue">———</div>
+                </div>
+                <div class="copy-otp-wrapper">
+                    <button class="btn-otp-copy" id="copyOtpBtn">
+                        📑 কপি OTP
+                    </button>
+                </div>
+                <div class="refresh-note">
+                    <span>⚡ প্রতি সেকেন্ডে অটো চেক | কোনো অতিরিক্ত টেক্সট থাকবে না</span>
+                </div>
+            </div>
+        </div>
+        <div class="refresh-note" style="margin-top: 1rem; border-top: 1px solid #ffdddd; padding-top: 0.8rem;">
+            ✅ EBH TEam কর্তৃক ডিজাইন — 
+        </div>
+    </div>
+</div>
+<div id="toastMsg" class="toast-msg">📋 কপি সম্পন্ন</div>
+
+<script>
+    // ---------------------- API endpoints (আপনার দেওয়া লিংক) --------------------------
+    const GET_MAIL_API = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&act=get-mail";
+    const GET_OTP_BASE = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&email=";
+    
+    // DOM elements
+    const emailSpan = document.getElementById("currentEmail");
+    const changeBtn = document.getElementById("changeEmailBtn");
+    const copyEmailBtn = document.getElementById("copyEmailBtn");
+    const otpValueSpan = document.getElementById("otpValue");
+    const copyOtpBtn = document.getElementById("copyOtpBtn");
+    const toastDiv = document.getElementById("toastMsg");
+    
+    // state
+    let currentEmail = "";
+    let pollingInterval = null;
+    let isFetchingOtp = false;
+    
+    // টোস্ট ফাংশন
+    function showToast(message, duration = 1500) {
+        toastDiv.textContent = message;
+        toastDiv.style.opacity = "1";
+        setTimeout(() => {
+            toastDiv.style.opacity = "0";
+        }, duration);
+    }
+    
+    // কপি ইউটিলিটি
+    async function copyToClipboard(text, successMsg) {
+        if (!text || text === "———" || text === "লোড হচ্ছে...") {
+            showToast("কপি করার মতো ডেটা নেই", 1000);
+            return false;
+        }
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast(successMsg);
+            return true;
+        } catch (err) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            showToast(successMsg);
+            return true;
+        }
+    }
+    
+    // ---------- 1. প্রথম API থেকে নতুন ইমেইল আনা ----------
+    async function fetchNewMailFromServer() {
+        try {
+            const response = await fetch(GET_MAIL_API, {
+                method: 'GET',
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const emailRaw = await response.text();
+            let cleanEmail = emailRaw.trim();
+            if (cleanEmail.startsWith("error") || cleanEmail.length < 5 || !cleanEmail.includes("@")) {
+                // ব্যাকআপ জেনারেট (লোকাল)
+                const rand = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+                cleanEmail = `${rand}@ebv.temp`;
+            }
+            return cleanEmail;
+        } catch (err) {
+            console.error("মেইল ফেচ ব্যর্থ:", err);
+            const fallback = `ebv${Math.floor(Math.random()*90000)+10000}@tempmail.team`;
+            showToast("সার্ভার রিস্পন্সে সমস্যা, লোকাল ইমেইল", 1700);
+            return fallback;
+        }
+    }
+    
+    // ---------- 2. দ্বিতীয় API (OTP ফেচ) - শুধু কোড, OK / দাগ বাদ দেওয়ার জন্য অতিরিক্ত রেগুলার এক্সপ্রেশন
+    //    কিন্তু আপনার API থেকে "OK|77886" আসলে আমরা শুধু সংখ্যা বা বিশুদ্ধ OTP বের করবো
+    async function fetchPureOtpByEmail(email) {
+        if (!email) return null;
+        try {
+            const url = GET_OTP_BASE + encodeURIComponent(email);
+            const resp = await fetch(url, { cache: 'no-store' });
+            if (!resp.ok) return null;
+            let raw = await resp.text();
+            let cleaned = raw.trim();
+            
+            // যদি error আসে
+            if (cleaned.toLowerCase() === "error" || cleaned === "") return null;
+            
+            // 🔥 গুরুত্বপূর্ণ: যেকোনো প্রকার "OK", "ok", "Ok", পাইপ "|", ড্যাশ, বাড়তি অক্ষর বাদ দিয়ে শুধু সংখ্যা ও অক্ষর? 
+            // কিন্তু আপনার OTP উদাহরণ "77886" অথবা "ok|77886" — আমরা শুধু সংখ্যা/কোড অংশ রাখব
+            // প্যাটার্ন: (OK|ok|Ok)?[\s:|#-]*(\w+)
+            // সর্বশেষে আমরা যা দেখাবো তা হবে pure OTP (শুধু numeric/alphanumeric)
+            let pureOtp = cleaned;
+            
+            // case 1: "ok|77886" বা "OK|77886" বা "ok 77886"
+            const matchPipe = cleaned.match(/(?:ok|OK|Ok)?\s*[\|\:\-\s]*([A-Za-z0-9]+)/i);
+            if (matchPipe && matchPipe[1]) {
+                pureOtp = matchPipe[1];
+            } 
+            // case 2: কোনো অক্ষর যেমন "OK77886" - তাহলে ok সরিয়ে ফেলবে
+            else if (cleaned.toLowerCase().startsWith("ok")) {
+                pureOtp = cleaned.replace(/^ok/gi, '').replace(/[\|\s]+/, '');
+            }
+            // যদি pureOtp এর মধ্যে কোনো অপ্রয়োজনীয় ক্যারেক্টার থাকে, শুধু আলফানিউমেরিক রাখি
+            pureOtp = pureOtp.replace(/[^A-Za-z0-9]/g, '');
+            
+            if (pureOtp.length === 0) return null;
+            return pureOtp;
+        } catch (err) {
+            console.warn("OTP ফেচ ইস্যু:", err);
+            return null;
+        }
+    }
+    
+    // ---------- OTP রিফ্রেশ (পিওর OTP, কোনো দাগ/OK থাকবে না) ----------
+    async function refreshPureOtp() {
+        if (!currentEmail) {
+            if (otpValueSpan.innerText !== "———") otpValueSpan.innerText = "———";
+            return;
+        }
+        if (isFetchingOtp) return;
+        isFetchingOtp = true;
+        try {
+            const pureOtp = await fetchPureOtpByEmail(currentEmail);
+            if (pureOtp && pureOtp.length > 0) {
+                if (otpValueSpan.innerText !== pureOtp) {
+                    otpValueSpan.innerText = pureOtp;
+                    // শুধু OTP, কোনো "OK" বা লাইন থাকবে না
+                }
+            } else {
+                if (otpValueSpan.innerText !== "———") otpValueSpan.innerText = "———";
+            }
+        } catch (error) {
+            console.error("OTP রিফ্রেশ ব্যর্থ");
+        } finally {
+            isFetchingOtp = false;
+        }
+    }
+    
+    // ---------- প্রতি 1 সেকেন্ড পোলিং ----------
+    function startOneSecondPolling() {
+        if (pollingInterval) clearInterval(pollingInterval);
+        if (!currentEmail) return;
+        refreshPureOtp(); // immediate
+        pollingInterval = setInterval(() => {
+            refreshPureOtp();
+        }, 1000); // প্রতি 1 সেকেন্ডে চেক
+    }
+    
+    function stopPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+    
+    // ---------- ইমেইল চেঞ্জ লজিক (প্রথম API) ----------
+    async function changeEmail() {
+        const originalText = currentEmail || "";
+        emailSpan.innerText = "🔄 জেনারেটিং...";
+        changeBtn.disabled = true;
+        changeBtn.style.opacity = "0.6";
+        try {
+            const newMail = await fetchNewMailFromServer();
+            if (!newMail) throw new Error();
+            currentEmail = newMail;
+            emailSpan.innerText = currentEmail;
+            localStorage.setItem("ebv_current_email", currentEmail);
+            // OTP রিসেট
+            otpValueSpan.innerText = "———";
+            stopPolling();
+            startOneSecondPolling();
+            showToast(`✔️ নতুন ইমেইল: ${currentEmail.substring(0, 28)}`, 1600);
+        } catch (err) {
+            emailSpan.innerText = originalText || "ত্রুটি! আবার চেষ্টা";
+            showToast("ইমেইল চেঞ্জ ব্যর্থ", 1400);
+        } finally {
+            changeBtn.disabled = false;
+            changeBtn.style.opacity = "1";
+        }
+    }
+    
+    // কপি মেইল
+    function copyEmailHandler() {
+        if (currentEmail && !currentEmail.includes("জেনারেটিং")) {
+            copyToClipboard(currentEmail, "📧 ইমেইল কপি!");
+        } else {
+            showToast("ইমেইল এখনো প্রস্তুত নয়", 1000);
+        }
+    }
+    
+    // কপি OTP (শুধু বিশুদ্ধ OTP কপি হবে)
+    function copyOtpHandler() {
+        const displayedOtp = otpValueSpan.innerText;
+        if (displayedOtp && displayedOtp !== "———" && displayedOtp !== "🔁 লোডিং...") {
+            // শুধু OTP টেক্সট কপি হবে — এতে OK বা দাগ থাকবে না কারণ আমরা pure সংরক্ষণ করি
+            copyToClipboard(displayedOtp, "🔑 OTP কপি!");
+        } else {
+            showToast("কোনো OTP এখনো পাওয়া যায়নি", 1000);
+        }
+    }
+    
+    // লোড বা রিফ্রেশে ইমেইল স্টোরেজ থেকে নেওয়া (চেঞ্জ না করার জন্য)
+    function initializeFromStorage() {
+        const savedEmail = localStorage.getItem("ebv_current_email");
+        if (savedEmail && savedEmail.includes("@") && savedEmail !== "লোড হচ্ছে...") {
+            currentEmail = savedEmail;
+            emailSpan.innerText = currentEmail;
+            startOneSecondPolling();
+        } else {
+            // নতুন ইমেইল জেনারেট
+            fetchNewMailFromServer().then(mail => {
+                currentEmail = mail;
+                emailSpan.innerText = currentEmail;
+                localStorage.setItem("ebv_current_email", currentEmail);
+                startOneSecondPolling();
+            }).catch(() => {
+                currentEmail = `ebv${Date.now()}@temp.ebv`;
+                emailSpan.innerText = currentEmail;
+                localStorage.setItem("ebv_current_email", currentEmail);
+                startOneSecondPolling();
+            });
+        }
+    }
+    
+    // ইভেন্ট লিসেনার
+    changeBtn.onclick = () => {
+        changeEmail().then(() => {
+            if (currentEmail) localStorage.setItem("ebv_current_email", currentEmail);
+        });
+    };
+    copyEmailBtn.onclick = copyEmailHandler;
+    copyOtpBtn.onclick = copyOtpHandler;
+    
+    // পেজ আনলোডে পোলিং বন্ধ
+    window.addEventListener("beforeunload", () => {
+        stopPolling();
+    });
+    
+    // স্টার্ট
+    initializeFromStorage();
+    
+    // এক্সট্রা প্রটেকশন: প্রতিবার OTP আপডেটে localStorage এ কিছু নেই, কিন্তু নিশ্চিত করা
+    window.addEventListener("load", () => {
+        // ফাইনাল চেক: কোনো বাড়তি ওকে লেটার কখনো UI তে আসবে না
+        // সেট ইন্ডিকেটর
+    });
+</script>
+</body>
+</html>
