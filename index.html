@@ -3,373 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>EBH TEAM | Mail & OTP Viewer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>EBH TEAM | মেইল ও OTP জেনারেটর</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            background: linear-gradient(145deg, #f3f6fc, #eef2f9);
             min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
+
         .card {
             max-width: 500px;
             width: 100%;
             background: white;
             border-radius: 32px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border: 1px solid #ffdede;
-        }
-        .header {
-            background: white;
-            padding: 20px;
-            border-bottom: 3px solid #e33b3b;
+            padding: 32px 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
-        .header h1 { color: #e33b3b; font-size: 1.8rem; }
-        .content { padding: 24px; }
-        .mail-box, .otp-box {
-            background: #fefaf5;
-            border-radius: 20px;
-            border: 1px solid #ffe0e0;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .label {
-            font-size: 12px;
-            font-weight: 600;
+
+        .header h1 {
             color: #e33b3b;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 28px;
+            margin-bottom: 8px;
         }
-        .email-display {
-            background: #fff7f0;
-            border-radius: 60px;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            border: 1px solid #ffe0e0;
-        }
-        .email-addr {
-            font-family: monospace;
+
+        .header p {
+            color: #666;
             font-size: 14px;
-            color: #2d3e50;
+            margin-bottom: 30px;
+        }
+
+        /* মেইল জেনারেটর সেকশন */
+        .mail-section {
+            background: linear-gradient(135deg, #e8f0fe, #dce8f5);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #c5d5e8;
+        }
+
+        .mail-section h3 {
+            color: #1a73e8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .open-btn {
+            background: linear-gradient(135deg, #1a73e8, #0d5bbf);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .open-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(26, 115, 232, 0.3);
+        }
+
+        /* OTP চেকার সেকশন */
+        .otp-section {
+            background: linear-gradient(135deg, #fefaf5, #fff0e6);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid #ffe0b3;
+        }
+
+        .otp-section h3 {
+            color: #e67e22;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e67e22;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 60px;
+            border: 1px solid #ffe0b3;
+            background: white;
+            font-size: 14px;
+            font-family: monospace;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #e67e22;
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+        }
+
+        .api-note {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+            font-family: monospace;
             word-break: break-all;
         }
-        .otp-display {
-            text-align: center;
-            padding: 20px;
-            background: #fffaf5;
-            border-radius: 20px;
-            border: 2px solid #ffe0e0;
-        }
-        .otp-code {
-            font-size: 48px;
-            font-weight: 800;
-            font-family: monospace;
-            letter-spacing: 8px;
-            color: #2c3e50;
-        }
-        .btn {
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-copy { background: #f1f5f9; color: #b91c1c; border: 1px solid #ffcdcd; }
-        .btn-change {
-            background: #e33b3b;
+
+        .check-btn {
+            background: linear-gradient(135deg, #e67e22, #d35400);
             color: white;
-            padding: 10px 24px;
-            font-size: 14px;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
             width: 100%;
-            justify-content: center;
+            transition: all 0.3s;
         }
-        .refresh-note {
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
+        }
+
+        .note {
             font-size: 11px;
             color: #94a3b8;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
         }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            color: #facc15;
-            padding: 10px 20px;
-            border-radius: 60px;
-            font-size: 13px;
-            z-index: 1000;
-            opacity: 0;
-            transition: 0.2s;
-        }
-        .setup-box {
-            background: #f1f5f9;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            border: 1px solid #cbd5e1;
-        }
-        .setup-box h3 {
-            color: #1e293b;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-        .setup-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-        .setup-btn {
-            background: #22c55e;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 12px;
-            width: 100%;
-            font-weight: bold;
-            cursor: pointer;
-        }
+
         @media (max-width: 480px) {
-            .otp-code { font-size: 32px; letter-spacing: 4px; }
-            .email-display { flex-direction: column; }
+            .card { padding: 24px 20px; }
+            .header h1 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
+
 <div class="card">
     <div class="header">
-        <h1><i class="fas fa-envelope"></i> EBH TEAM</h1>
-        <p style="color:#666; font-size:12px;">Mail & OTP Viewer</p>
+        <h1>📬 EBH TEAM</h1>
+        <p>মেইল জেনারেট ও OTP চেক করুন</p>
     </div>
-    <div class="content">
-        <div id="setupPanel" class="setup-box">
-            <h3><i class="fab fa-github"></i> প্রথমবার সেটআপ</h3>
-            <input type="text" id="setupUser" class="setup-input" placeholder="GitHub Username (e.g., EBH-TEAM)">
-            <input type="text" id="setupRepo" class="setup-input" placeholder="Repository Name (e.g., ebh-api-settings)">
-            <button class="setup-btn" id="saveSetupBtn"><i class="fas fa-save"></i> সেভ করুন</button>
+
+    <!-- সেকশন ১: মেইল জেনারেট -->
+    <div class="mail-section">
+        <h3>
+            <span>✉️</span> নতুন মেইল তৈরি করুন
+        </h3>
+        <button class="open-btn" id="generateMailBtn">
+            🚀 নতুন মেইল পেতে ক্লিক করুন
+        </button>
+        <div class="api-note" style="margin-top: 15px;">
+            🔗 API: http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&act=get-mail
         </div>
+    </div>
 
-        <div id="mainPanel" style="display: none;">
-            <div class="mail-box">
-                <div class="label"><i class="fas fa-at"></i> ইমেইল ঠিকানা</div>
-                <div class="email-display">
-                    <span class="email-addr" id="currentEmail">লোড হচ্ছে...</span>
-                    <button class="btn btn-copy" id="copyEmailBtn"><i class="fas fa-copy"></i> কপি</button>
-                </div>
-            </div>
-
-            <div class="otp-box">
-                <div class="label"><i class="fas fa-key"></i> ওয়ান টাইম পাসকোড</div>
-                <div class="otp-display">
-                    <div class="otp-code" id="otpValue">———</div>
-                </div>
-                <div style="text-align: center; margin-top: 15px;">
-                    <button class="btn btn-copy" id="copyOtpBtn"><i class="fas fa-copy"></i> OTP কপি করুন</button>
-                </div>
-            </div>
-
-            <button class="btn btn-change" id="changeEmailBtn"><i class="fas fa-sync-alt"></i> চেঞ্জ ইমেইল</button>
-            <div class="refresh-note">
-                <i class="fas fa-clock"></i> প্রতি ২ সেকেন্ডে OTP চেক হবে
+    <!-- সেকশন ২: OTP চেকার -->
+    <div class="otp-section">
+        <h3>
+            <span>🔐</span> OTP চেক করুন
+        </h3>
+        <div class="input-group">
+            <label>📧 ইমেইল ঠিকানা লিখুন</label>
+            <input type="text" id="emailInput" placeholder="যেমন: yr4rjl3rdnrgisp@sau6.me">
+            <div class="api-note" id="apiPreview">
+                🔗 লিংক: http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&email=আপনার_ইমেইল
             </div>
         </div>
+        <button class="check-btn" id="checkOtpBtn">
+            🔍 OTP চেক করুন (ব্রাউজারে খুলবে)
+        </button>
+    </div>
+
+    <div class="note">
+        ⚡ উপরের বাটনে ক্লিক করলে ব্রাউজারে মেইল দেখাবে<br>
+        ⚡ নিচে ইমেইল লিখে চেক করলে OTP দেখাবে
     </div>
 </div>
-<div id="toast" class="toast">📋 কপি হয়েছে</div>
 
 <script>
-    const proxy = "https://api.allorigins.win/raw?url=";
-    let GITHUB_USER = "";
-    let GITHUB_REPO = "";
-    let mailApiUrl = "";
-    let otpApiUrl = "";
-    let currentEmail = "";
-    let pollingInterval = null;
-    
-    const setupPanel = document.getElementById('setupPanel');
-    const mainPanel = document.getElementById('mainPanel');
-    const setupUser = document.getElementById('setupUser');
-    const setupRepo = document.getElementById('setupRepo');
-    const saveSetupBtn = document.getElementById('saveSetupBtn');
-    const emailSpan = document.getElementById('currentEmail');
-    const otpSpan = document.getElementById('otpValue');
-    const changeBtn = document.getElementById('changeEmailBtn');
-    const copyEmailBtn = document.getElementById('copyEmailBtn');
-    const copyOtpBtn = document.getElementById('copyOtpBtn');
-    const toastDiv = document.getElementById('toast');
-    
-    function showToast(msg) {
-        toastDiv.textContent = msg;
-        toastDiv.style.opacity = "1";
-        setTimeout(() => toastDiv.style.opacity = "0", 1500);
-    }
-    
-    async function copyToClipboard(text, msg) {
-        if (!text || text === "———") { showToast("কপি করার মতো কিছু নেই"); return; }
-        try {
-            await navigator.clipboard.writeText(text);
-            showToast(msg);
-        } catch { showToast(msg); }
-    }
-    
-    // GitHub থেকে API URL লোড
-    async function loadApiFromGitHub() {
-        try {
-            const mailRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/issues?labels=mail_api&state=all`);
-            if (mailRes.ok) {
-                const issues = await mailRes.json();
-                if (issues.length > 0) mailApiUrl = issues[0].body.trim();
-            }
-            
-            const otpRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/issues?labels=otp_api&state=all`);
-            if (otpRes.ok) {
-                const issues = await otpRes.json();
-                if (issues.length > 0) otpApiUrl = issues[0].body.trim();
-            }
-            
-            return !!(mailApiUrl && otpApiUrl);
-        } catch(err) {
-            console.error(err);
-            return false;
-        }
-    }
-    
-    async function callApi(url) {
-        if (!url) return null;
-        try {
-            const res = await fetch(proxy + encodeURIComponent(url));
-            if (res.ok) return await res.text();
-        } catch(e) {}
-        return null;
-    }
-    
-    async function generateNewEmail() {
-        if (!mailApiUrl) return null;
-        const result = await callApi(mailApiUrl);
-        if (result && !result.toLowerCase().includes("error") && result.includes("@")) {
-            return result.trim();
-        }
-        return `user${Date.now()}@temp.ebh`;
-    }
-    
-    async function fetchOtp() {
-        if (!currentEmail || !otpApiUrl) return null;
-        const fullUrl = otpApiUrl + encodeURIComponent(currentEmail);
-        const result = await callApi(fullUrl);
-        if (result && !result.toLowerCase().includes("error")) {
-            let pure = result.replace(/[^0-9]/g, '');
-            if (pure.length === 0) pure = result.trim();
-            return pure;
-        }
-        return null;
-    }
-    
-    function startPolling() {
-        if (pollingInterval) clearInterval(pollingInterval);
-        if (!currentEmail) return;
-        const checkOtp = async () => {
-            const otp = await fetchOtp();
-            if (otp && otp.length > 0) {
-                otpSpan.innerText = otp;
-            } else {
-                if (otpSpan.innerText !== "———") otpSpan.innerText = "———";
-            }
-        };
-        checkOtp();
-        pollingInterval = setInterval(checkOtp, 2000);
-    }
-    
-    async function changeEmail() {
-        changeBtn.disabled = true;
-        changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> জেনারেটিং...';
-        try {
-            const newEmail = await generateNewEmail();
-            if (newEmail) {
-                currentEmail = newEmail;
-                emailSpan.innerText = currentEmail;
-                localStorage.setItem("ebh_current_email", currentEmail);
-                otpSpan.innerText = "———";
-                startPolling();
-                showToast(`✔️ নতুন ইমেইল: ${currentEmail.substring(0, 28)}`);
-            } else {
-                showToast("ইমেইল জেনারেট করতে ব্যর্থ");
-            }
-        } catch(err) {
-            showToast("ইমেইল চেঞ্জ ব্যর্থ");
-        } finally {
-            changeBtn.disabled = false;
-            changeBtn.innerHTML = '<i class="fas fa-sync-alt"></i> চেঞ্জ ইমেইল';
-        }
-    }
-    
-    async function loadEmail() {
-        const saved = localStorage.getItem("ebh_current_email");
-        if (saved && saved.includes("@")) {
-            currentEmail = saved;
-            emailSpan.innerText = currentEmail;
-            startPolling();
+    // ============================================
+    // API লিংক
+    // ============================================
+    const GENERATE_MAIL_URL = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&act=get-mail";
+    const OTP_API_BASE = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&email=";
+
+    // DOM এলিমেন্টস
+    const generateMailBtn = document.getElementById('generateMailBtn');
+    const checkOtpBtn = document.getElementById('checkOtpBtn');
+    const emailInput = document.getElementById('emailInput');
+    const apiPreview = document.getElementById('apiPreview');
+
+    // ইমেইল টাইপ করার সময় API লিংক প্রিভিউ আপডেট করা
+    emailInput.addEventListener('input', function() {
+        const email = emailInput.value.trim();
+        if (email) {
+            apiPreview.innerHTML = `🔗 লিংক: ${OTP_API_BASE}${encodeURIComponent(email)}`;
         } else {
-            await changeEmail();
+            apiPreview.innerHTML = `🔗 লিংক: ${OTP_API_BASE}আপনার_ইমেইল`;
         }
-    }
-    
-    async function initializeUser() {
-        const success = await loadApiFromGitHub();
-        if (success) {
-            setupPanel.style.display = 'none';
-            mainPanel.style.display = 'block';
-            await loadEmail();
-        } else {
-            showToast("API লোড করতে ব্যর্থ! সেটিংস চেক করুন");
-        }
-    }
-    
-    saveSetupBtn.onclick = async () => {
-        const user = setupUser.value.trim();
-        const repo = setupRepo.value.trim();
-        if (!user || !repo) {
-            showToast("দয়া করে ইউজারনেম এবং রিপোজিটরি নাম দিন");
+    });
+
+    // বাটন ১: মেইল জেনারেট - গুগল ক্রোমে খুলবে
+    generateMailBtn.addEventListener('click', function() {
+        window.open(GENERATE_MAIL_URL, '_blank');
+    });
+
+    // বাটন ২: OTP চেক - গুগল ক্রোমে খুলবে
+    checkOtpBtn.addEventListener('click', function() {
+        let email = emailInput.value.trim();
+        
+        if (!email) {
+            alert("দয়া করে ইমেইল লিখুন!");
             return;
         }
-        GITHUB_USER = user;
-        GITHUB_REPO = repo;
-        localStorage.setItem('ebh_github_user', GITHUB_USER);
-        localStorage.setItem('ebh_github_repo', GITHUB_REPO);
-        await initializeUser();
-    };
-    
-    // লোড সেভ করা সেটিংস
-    const savedUser = localStorage.getItem('ebh_github_user');
-    const savedRepo = localStorage.getItem('ebh_github_repo');
-    if (savedUser && savedRepo) {
-        GITHUB_USER = savedUser;
-        GITHUB_REPO = savedRepo;
-        initializeUser();
-    }
-    
-    copyEmailBtn.onclick = () => copyToClipboard(currentEmail, "📧 ইমেইল কপি!");
-    copyOtpBtn.onclick = () => copyToClipboard(otpSpan.innerText, "🔑 OTP কপি!");
-    changeBtn.onclick = changeEmail;
+        
+        if (!email.includes('@')) {
+            alert("সঠিক ইমেইল দিন! (@ থাকতে হবে)");
+            return;
+        }
+        
+        const fullUrl = OTP_API_BASE + encodeURIComponent(email);
+        window.open(fullUrl, '_blank');
+    });
+
+    console.log("✅ রেডি!");
 </script>
 </body>
 </html>
