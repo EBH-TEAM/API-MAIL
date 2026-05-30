@@ -21,7 +21,6 @@
             padding: 1rem;
         }
 
-        /* মূল কার্ড - সাদা + লাল অ্যাকসেন্ট */
         .ebv-card {
             max-width: 560px;
             width: 100%;
@@ -33,7 +32,6 @@
             border: 1px solid #ffdede;
         }
 
-        /* হেডার - নাম অনুযায়ী লোগো (EBH TEAM) */
         .team-header {
             background: #ffffff;
             padding: 1.2rem 1.8rem;
@@ -86,12 +84,10 @@
         }
         @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
 
-        /* কন্টেন্ট প্যাডিং কম — স্কিনের জায়গা কম */
         .content-slim {
             padding: 1.5rem 1.8rem 2rem;
         }
 
-        /* একটাই বক্স (ইউনিভার্সাল কন্টেইনার) */
         .unified-box {
             background: #fefaf5;
             border-radius: 1.8rem;
@@ -101,7 +97,6 @@
             transition: all 0.2s;
         }
 
-        /* ইমেইল সেকশন (বক্সের উপরের অংশ) */
         .email-area {
             padding: 1.2rem 1.5rem 0.8rem 1.5rem;
             border-bottom: 1px dashed #ffe0e0;
@@ -165,17 +160,15 @@
             font-weight: 600;
             box-shadow: 0 2px 6px rgba(230,57,70,0.2);
         }
-        .btn-change:hover {
+        .btn-change:hover:not(:disabled) {
             background: #c62828;
             transform: translateY(-1px);
         }
         .btn-change:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
-        /* OTP সেন্টার — বড় সাইজ, শুধু কোড */
         .otp-center {
             padding: 1.2rem 1.5rem 1.8rem 1.5rem;
             text-align: center;
@@ -191,7 +184,6 @@
             align-items: center;
             gap: 8px;
         }
-        /* বিশাল OTP ডিসপ্লে - শুধু সংখ্যা, কোনো দাগ বা ওকে থাকবে না */
         .otp-giant {
             background: #fffaf5;
             border-radius: 2rem;
@@ -211,7 +203,6 @@
             word-break: break-word;
             line-height: 1.2;
         }
-        /* কপি বাটন একদম সেন্টারে */
         .copy-otp-wrapper {
             display: flex;
             justify-content: center;
@@ -235,7 +226,6 @@
         .btn-otp-copy:hover {
             background: #b91c1c;
             transform: scale(0.97);
-            box-shadow: 0 2px 8px rgba(185,28,28,0.3);
         }
         .refresh-note {
             font-size: 0.65rem;
@@ -334,13 +324,18 @@
 <div id="toastMsg" class="toast-msg">📋 কপি সম্পন্ন</div>
 
 <script>
-    // ====================== API endpoints (আপনার দেওয়া লিংক) ======================
+    // ====================== API endpoints ======================
     const GET_MAIL_API = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&act=get-mail";
     const GET_OTP_BASE = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&email=";
     
-    // GitHub Pages (https) থেকে http API কল করতে CORS + Mixed Content সমস্যা সমাধানের জন্য
-    // AllOrigins public proxy ব্যবহার করা হয়েছে (শুধু মেইল ও OTP ফেচের জন্য)
-    const ALLORIGINS_PROXY = "https://api.allorigins.win/raw?url=";
+    // একাধিক প্রক্সি (কোনোটা কাজ না করলে পরেরটা চেষ্টা করবে)
+    const PROXIES = [
+        "https://api.allorigins.win/raw?url=",
+        "https://cors-anywhere.herokuapp.com/",
+        "https://proxy.cors.sh/"
+    ];
+    
+    let currentProxyIndex = 0;
     
     // DOM elements
     const emailSpan = document.getElementById("currentEmail");
@@ -350,12 +345,10 @@
     const copyOtpBtn = document.getElementById("copyOtpBtn");
     const toastDiv = document.getElementById("toastMsg");
     
-    // state
     let currentEmail = "";
     let pollingInterval = null;
     let isFetchingOtp = false;
     
-    // টোস্ট ফাংশন
     function showToast(message, duration = 1500) {
         toastDiv.textContent = message;
         toastDiv.style.opacity = "1";
@@ -364,7 +357,6 @@
         }, duration);
     }
     
-    // কপি ইউটিলিটি
     async function copyToClipboard(text, successMsg) {
         if (!text || text === "———" || text === "লোড হচ্ছে...") {
             showToast("কপি করার মতো ডেটা নেই", 1000);
@@ -386,67 +378,80 @@
         }
     }
     
-    // ---------- প্রক্সি সহ ফেচ (GitHub Hosting এ কাজ করার জন্য) ----------
-    async function fetchWithProxy(url) {
-        // প্রথমে সরাসরি চেষ্টা (স্থানীয় বা অনুমতি থাকলে)
+    // টাইমআউট সহ ফেচ (30 সেকেন্ড)
+    async function fetchWithTimeout(url, timeout = 30000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
         try {
             const response = await fetch(url, {
-                method: 'GET',
-                mode: 'cors',
+                signal: controller.signal,
                 cache: 'no-store'
             });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (err) {
+            clearTimeout(timeoutId);
+            throw err;
+        }
+    }
+    
+    // একাধিক প্রক্সি সহ ফেচ
+    async function fetchViaProxy(originalUrl, retryCount = 0) {
+        // প্রথমে সরাসরি চেষ্টা
+        try {
+            const response = await fetchWithTimeout(originalUrl);
             if (response.ok) {
                 return await response.text();
             }
         } catch (e) {
-            console.log("Direct fetch failed, using proxy");
+            console.log("Direct fetch failed:", e.message);
         }
         
-        // প্রক্সি দিয়ে চেষ্টা (AllOrigins)
-        try {
-            const proxyUrl = ALLORIGINS_PROXY + encodeURIComponent(url);
-            const proxyRes = await fetch(proxyUrl, { cache: 'no-store' });
-            if (proxyRes.ok) {
-                return await proxyRes.text();
+        // প্রক্সি দিয়ে চেষ্টা
+        for (let i = 0; i < PROXIES.length; i++) {
+            try {
+                const proxyUrl = PROXIES[i] + encodeURIComponent(originalUrl);
+                const response = await fetchWithTimeout(proxyUrl);
+                if (response.ok) {
+                    const text = await response.text();
+                    if (text && !text.includes("error") && text.length > 0) {
+                        return text;
+                    }
+                }
+            } catch (e) {
+                console.log(`Proxy ${i} failed:`, e.message);
             }
-        } catch (e) {
-            console.warn("Proxy fetch failed:", e);
         }
         
-        throw new Error("Network error - unable to fetch");
+        throw new Error("All fetch methods failed");
     }
     
-    // ---------- 1. প্রথম API থেকে নতুন ইমেইল আনা (প্রক্সি সাপোর্ট) ----------
     async function fetchNewMailFromServer() {
         try {
-            const rawText = await fetchWithProxy(GET_MAIL_API);
+            const rawText = await fetchViaProxy(GET_MAIL_API);
             let cleanEmail = rawText.trim();
             if (cleanEmail.startsWith("error") || cleanEmail.length < 5 || !cleanEmail.includes("@")) {
                 const rand = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
                 cleanEmail = `${rand}@ebh.temp`;
-                showToast("API সার্ভার থেকে ব্যাকআপ ইমেইল তৈরি", 1500);
             }
             return cleanEmail;
         } catch (err) {
             console.error("মেইল ফেচ ব্যর্থ:", err);
             const fallback = `ebh${Math.floor(Math.random()*90000)+10000}@tempmail.team`;
-            showToast("সার্ভার সংযোগ সমস্যা, লোকাল ইমেইল", 1700);
             return fallback;
         }
     }
     
-    // ---------- 2. দ্বিতীয় API (OTP ফেচ) - শুধু কোড, OK / দাগ বাদ ----------
     async function fetchPureOtpByEmail(email) {
         if (!email) return null;
         try {
             const url = GET_OTP_BASE + encodeURIComponent(email);
-            let raw = await fetchWithProxy(url);
+            let raw = await fetchViaProxy(url);
             let cleaned = raw.trim();
             
             if (cleaned.toLowerCase() === "error" || cleaned === "") return null;
             
             let pureOtp = cleaned;
-            // "ok|77886" বা "OK|77886" বা "ok 77886" থেকে শুধু কোড নেওয়া
             const matchPipe = cleaned.match(/(?:ok|OK|Ok)?\s*[\|\:\-\s]*([A-Za-z0-9]+)/i);
             if (matchPipe && matchPipe[1]) {
                 pureOtp = matchPipe[1];
@@ -464,7 +469,6 @@
         }
     }
     
-    // ---------- OTP রিফ্রেশ ----------
     async function refreshPureOtp() {
         if (!currentEmail) {
             if (otpValueSpan.innerText !== "———") otpValueSpan.innerText = "———";
@@ -488,7 +492,6 @@
         }
     }
     
-    // ---------- প্রতি 1 সেকেন্ড পোলিং ----------
     function startOneSecondPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         if (!currentEmail) return;
@@ -505,9 +508,7 @@
         }
     }
     
-    // ---------- ইমেইল চেঞ্জ লজিক ----------
     async function changeEmail() {
-        const originalText = currentEmail || "";
         emailSpan.innerText = "🔄 জেনারেটিং...";
         changeBtn.disabled = true;
         changeBtn.style.opacity = "0.6";
@@ -522,7 +523,7 @@
             startOneSecondPolling();
             showToast(`✔️ নতুন ইমেইল: ${currentEmail.substring(0, 28)}`, 1600);
         } catch (err) {
-            emailSpan.innerText = originalText || "ত্রুটি! আবার চেষ্টা";
+            emailSpan.innerText = "ত্রুটি! আবার চেষ্টা";
             showToast("ইমেইল চেঞ্জ ব্যর্থ", 1400);
         } finally {
             changeBtn.disabled = false;
@@ -540,14 +541,13 @@
     
     function copyOtpHandler() {
         const displayedOtp = otpValueSpan.innerText;
-        if (displayedOtp && displayedOtp !== "———" && displayedOtp !== "🔁 লোডিং...") {
+        if (displayedOtp && displayedOtp !== "———") {
             copyToClipboard(displayedOtp, "🔑 OTP কপি!");
         } else {
             showToast("কোনো OTP এখনো পাওয়া যায়নি", 1000);
         }
     }
     
-    // লোকাল স্টোরেজ থেকে ইমেইল লোড (রিফ্রেশে চেঞ্জ না হওয়ার জন্য)
     function initializeFromStorage() {
         const savedEmail = localStorage.getItem("ebh_current_email");
         if (savedEmail && savedEmail.includes("@") && savedEmail !== "লোড হচ্ছে...") {
@@ -569,7 +569,6 @@
         }
     }
     
-    // ইভেন্ট লিসেনার
     changeBtn.onclick = () => {
         changeEmail().then(() => {
             if (currentEmail) localStorage.setItem("ebh_current_email", currentEmail);
