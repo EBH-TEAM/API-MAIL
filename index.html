@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>EBV TEAM | OTP সেন্টার</title>
+    <title>EBH TEAM | OTP সেন্টার</title>
     <style>
         * {
             margin: 0;
@@ -33,7 +33,7 @@
             border: 1px solid #ffdede;
         }
 
-        /* হেডার - নাম অনুযায়ী লোগো (EBV TEAM) */
+        /* হেডার - নাম অনুযায়ী লোগো (EBH TEAM) */
         .team-header {
             background: #ffffff;
             padding: 1.2rem 1.8rem;
@@ -169,6 +169,11 @@
             background: #c62828;
             transform: translateY(-1px);
         }
+        .btn-change:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         /* OTP সেন্টার — বড় সাইজ, শুধু কোড */
         .otp-center {
@@ -277,18 +282,16 @@
     <div class="team-header">
         <div class="team-name">
             <h1>EBH TEAM</h1>
-            <span class="team-badge">✦ EARNING BY HABIB  ✦</span>
+            <span class="team-badge">✦ EARNING BY HABIB ✦</span>
         </div>
         <div class="live-dot">
             <span class="dot"></span>
-            <span>অটো OTP </span>
+            <span>অটো OTP</span>
         </div>
     </div>
 
     <div class="content-slim">
-        <!-- একটাই ইউনিফাইড বক্স -->
         <div class="unified-box">
-            <!-- ইমেইল বিভাগ -->
             <div class="email-area">
                 <div class="label-light">
                     📧 API MAIL
@@ -305,7 +308,6 @@
                 </div>
             </div>
 
-            <!-- OTP সেন্টার - বিশাল & শুধু সংখ্যা, কোনো ওকে/দাগ থাকবে না -->
             <div class="otp-center">
                 <div class="otp-label">
                     🔐 ওয়ান টাইম পাসকোড
@@ -325,16 +327,20 @@
             </div>
         </div>
         <div class="refresh-note" style="margin-top: 1rem; border-top: 1px solid #ffdddd; padding-top: 0.8rem;">
-            ✅ EBH TEAM কর্তৃক ডিজাইন — 
+            ✅ EBH Team কর্তৃক ডিজাইন —
         </div>
     </div>
 </div>
 <div id="toastMsg" class="toast-msg">📋 কপি সম্পন্ন</div>
 
 <script>
-    // ---------------------- API endpoints (আপনার দেওয়া লিংক) --------------------------
+    // ====================== API endpoints (আপনার দেওয়া লিংক) ======================
     const GET_MAIL_API = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&act=get-mail";
     const GET_OTP_BASE = "http://api.mtien.click/public/GetMailCode.aspx?key=mtienv25102025&email=";
+    
+    // GitHub Pages (https) থেকে http API কল করতে CORS + Mixed Content সমস্যা সমাধানের জন্য
+    // AllOrigins public proxy ব্যবহার করা হয়েছে (শুধু মেইল ও OTP ফেচের জন্য)
+    const ALLORIGINS_PROXY = "https://api.allorigins.win/raw?url=";
     
     // DOM elements
     const emailSpan = document.getElementById("currentEmail");
@@ -380,60 +386,74 @@
         }
     }
     
-    // ---------- 1. প্রথম API থেকে নতুন ইমেইল আনা ----------
-    async function fetchNewMailFromServer() {
+    // ---------- প্রক্সি সহ ফেচ (GitHub Hosting এ কাজ করার জন্য) ----------
+    async function fetchWithProxy(url) {
+        // প্রথমে সরাসরি চেষ্টা (স্থানীয় বা অনুমতি থাকলে)
         try {
-            const response = await fetch(GET_MAIL_API, {
+            const response = await fetch(url, {
                 method: 'GET',
+                mode: 'cors',
                 cache: 'no-store'
             });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const emailRaw = await response.text();
-            let cleanEmail = emailRaw.trim();
+            if (response.ok) {
+                return await response.text();
+            }
+        } catch (e) {
+            console.log("Direct fetch failed, using proxy");
+        }
+        
+        // প্রক্সি দিয়ে চেষ্টা (AllOrigins)
+        try {
+            const proxyUrl = ALLORIGINS_PROXY + encodeURIComponent(url);
+            const proxyRes = await fetch(proxyUrl, { cache: 'no-store' });
+            if (proxyRes.ok) {
+                return await proxyRes.text();
+            }
+        } catch (e) {
+            console.warn("Proxy fetch failed:", e);
+        }
+        
+        throw new Error("Network error - unable to fetch");
+    }
+    
+    // ---------- 1. প্রথম API থেকে নতুন ইমেইল আনা (প্রক্সি সাপোর্ট) ----------
+    async function fetchNewMailFromServer() {
+        try {
+            const rawText = await fetchWithProxy(GET_MAIL_API);
+            let cleanEmail = rawText.trim();
             if (cleanEmail.startsWith("error") || cleanEmail.length < 5 || !cleanEmail.includes("@")) {
-                // ব্যাকআপ জেনারেট (লোকাল)
                 const rand = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-                cleanEmail = `${rand}@ebv.temp`;
+                cleanEmail = `${rand}@ebh.temp`;
+                showToast("API সার্ভার থেকে ব্যাকআপ ইমেইল তৈরি", 1500);
             }
             return cleanEmail;
         } catch (err) {
             console.error("মেইল ফেচ ব্যর্থ:", err);
-            const fallback = `ebv${Math.floor(Math.random()*90000)+10000}@tempmail.team`;
-            showToast("সার্ভার রিস্পন্সে সমস্যা, লোকাল ইমেইল", 1700);
+            const fallback = `ebh${Math.floor(Math.random()*90000)+10000}@tempmail.team`;
+            showToast("সার্ভার সংযোগ সমস্যা, লোকাল ইমেইল", 1700);
             return fallback;
         }
     }
     
-    // ---------- 2. দ্বিতীয় API (OTP ফেচ) - শুধু কোড, OK / দাগ বাদ দেওয়ার জন্য অতিরিক্ত রেগুলার এক্সপ্রেশন
-    //    কিন্তু আপনার API থেকে "OK|77886" আসলে আমরা শুধু সংখ্যা বা বিশুদ্ধ OTP বের করবো
+    // ---------- 2. দ্বিতীয় API (OTP ফেচ) - শুধু কোড, OK / দাগ বাদ ----------
     async function fetchPureOtpByEmail(email) {
         if (!email) return null;
         try {
             const url = GET_OTP_BASE + encodeURIComponent(email);
-            const resp = await fetch(url, { cache: 'no-store' });
-            if (!resp.ok) return null;
-            let raw = await resp.text();
+            let raw = await fetchWithProxy(url);
             let cleaned = raw.trim();
             
-            // যদি error আসে
             if (cleaned.toLowerCase() === "error" || cleaned === "") return null;
             
-            // 🔥 গুরুত্বপূর্ণ: যেকোনো প্রকার "OK", "ok", "Ok", পাইপ "|", ড্যাশ, বাড়তি অক্ষর বাদ দিয়ে শুধু সংখ্যা ও অক্ষর? 
-            // কিন্তু আপনার OTP উদাহরণ "77886" অথবা "ok|77886" — আমরা শুধু সংখ্যা/কোড অংশ রাখব
-            // প্যাটার্ন: (OK|ok|Ok)?[\s:|#-]*(\w+)
-            // সর্বশেষে আমরা যা দেখাবো তা হবে pure OTP (শুধু numeric/alphanumeric)
             let pureOtp = cleaned;
-            
-            // case 1: "ok|77886" বা "OK|77886" বা "ok 77886"
+            // "ok|77886" বা "OK|77886" বা "ok 77886" থেকে শুধু কোড নেওয়া
             const matchPipe = cleaned.match(/(?:ok|OK|Ok)?\s*[\|\:\-\s]*([A-Za-z0-9]+)/i);
             if (matchPipe && matchPipe[1]) {
                 pureOtp = matchPipe[1];
             } 
-            // case 2: কোনো অক্ষর যেমন "OK77886" - তাহলে ok সরিয়ে ফেলবে
             else if (cleaned.toLowerCase().startsWith("ok")) {
                 pureOtp = cleaned.replace(/^ok/gi, '').replace(/[\|\s]+/, '');
             }
-            // যদি pureOtp এর মধ্যে কোনো অপ্রয়োজনীয় ক্যারেক্টার থাকে, শুধু আলফানিউমেরিক রাখি
             pureOtp = pureOtp.replace(/[^A-Za-z0-9]/g, '');
             
             if (pureOtp.length === 0) return null;
@@ -444,7 +464,7 @@
         }
     }
     
-    // ---------- OTP রিফ্রেশ (পিওর OTP, কোনো দাগ/OK থাকবে না) ----------
+    // ---------- OTP রিফ্রেশ ----------
     async function refreshPureOtp() {
         if (!currentEmail) {
             if (otpValueSpan.innerText !== "———") otpValueSpan.innerText = "———";
@@ -457,7 +477,6 @@
             if (pureOtp && pureOtp.length > 0) {
                 if (otpValueSpan.innerText !== pureOtp) {
                     otpValueSpan.innerText = pureOtp;
-                    // শুধু OTP, কোনো "OK" বা লাইন থাকবে না
                 }
             } else {
                 if (otpValueSpan.innerText !== "———") otpValueSpan.innerText = "———";
@@ -473,10 +492,10 @@
     function startOneSecondPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         if (!currentEmail) return;
-        refreshPureOtp(); // immediate
+        refreshPureOtp();
         pollingInterval = setInterval(() => {
             refreshPureOtp();
-        }, 1000); // প্রতি 1 সেকেন্ডে চেক
+        }, 1000);
     }
     
     function stopPolling() {
@@ -486,7 +505,7 @@
         }
     }
     
-    // ---------- ইমেইল চেঞ্জ লজিক (প্রথম API) ----------
+    // ---------- ইমেইল চেঞ্জ লজিক ----------
     async function changeEmail() {
         const originalText = currentEmail || "";
         emailSpan.innerText = "🔄 জেনারেটিং...";
@@ -497,8 +516,7 @@
             if (!newMail) throw new Error();
             currentEmail = newMail;
             emailSpan.innerText = currentEmail;
-            localStorage.setItem("ebv_current_email", currentEmail);
-            // OTP রিসেট
+            localStorage.setItem("ebh_current_email", currentEmail);
             otpValueSpan.innerText = "———";
             stopPolling();
             startOneSecondPolling();
@@ -512,7 +530,6 @@
         }
     }
     
-    // কপি মেইল
     function copyEmailHandler() {
         if (currentEmail && !currentEmail.includes("জেনারেটিং")) {
             copyToClipboard(currentEmail, "📧 ইমেইল কপি!");
@@ -521,35 +538,32 @@
         }
     }
     
-    // কপি OTP (শুধু বিশুদ্ধ OTP কপি হবে)
     function copyOtpHandler() {
         const displayedOtp = otpValueSpan.innerText;
         if (displayedOtp && displayedOtp !== "———" && displayedOtp !== "🔁 লোডিং...") {
-            // শুধু OTP টেক্সট কপি হবে — এতে OK বা দাগ থাকবে না কারণ আমরা pure সংরক্ষণ করি
             copyToClipboard(displayedOtp, "🔑 OTP কপি!");
         } else {
             showToast("কোনো OTP এখনো পাওয়া যায়নি", 1000);
         }
     }
     
-    // লোড বা রিফ্রেশে ইমেইল স্টোরেজ থেকে নেওয়া (চেঞ্জ না করার জন্য)
+    // লোকাল স্টোরেজ থেকে ইমেইল লোড (রিফ্রেশে চেঞ্জ না হওয়ার জন্য)
     function initializeFromStorage() {
-        const savedEmail = localStorage.getItem("ebv_current_email");
+        const savedEmail = localStorage.getItem("ebh_current_email");
         if (savedEmail && savedEmail.includes("@") && savedEmail !== "লোড হচ্ছে...") {
             currentEmail = savedEmail;
             emailSpan.innerText = currentEmail;
             startOneSecondPolling();
         } else {
-            // নতুন ইমেইল জেনারেট
             fetchNewMailFromServer().then(mail => {
                 currentEmail = mail;
                 emailSpan.innerText = currentEmail;
-                localStorage.setItem("ebv_current_email", currentEmail);
+                localStorage.setItem("ebh_current_email", currentEmail);
                 startOneSecondPolling();
             }).catch(() => {
-                currentEmail = `ebv${Date.now()}@temp.ebv`;
+                currentEmail = `ebh${Date.now()}@temp.ebh`;
                 emailSpan.innerText = currentEmail;
-                localStorage.setItem("ebv_current_email", currentEmail);
+                localStorage.setItem("ebh_current_email", currentEmail);
                 startOneSecondPolling();
             });
         }
@@ -558,25 +572,17 @@
     // ইভেন্ট লিসেনার
     changeBtn.onclick = () => {
         changeEmail().then(() => {
-            if (currentEmail) localStorage.setItem("ebv_current_email", currentEmail);
+            if (currentEmail) localStorage.setItem("ebh_current_email", currentEmail);
         });
     };
     copyEmailBtn.onclick = copyEmailHandler;
     copyOtpBtn.onclick = copyOtpHandler;
     
-    // পেজ আনলোডে পোলিং বন্ধ
     window.addEventListener("beforeunload", () => {
         stopPolling();
     });
     
-    // স্টার্ট
     initializeFromStorage();
-    
-    // এক্সট্রা প্রটেকশন: প্রতিবার OTP আপডেটে localStorage এ কিছু নেই, কিন্তু নিশ্চিত করা
-    window.addEventListener("load", () => {
-        // ফাইনাল চেক: কোনো বাড়তি ওকে লেটার কখনো UI তে আসবে না
-        // সেট ইন্ডিকেটর
-    });
 </script>
 </body>
 </html>
